@@ -1,0 +1,121 @@
+#                    COMPILADORES                     #
+#                                                     #
+# ALUNOS: ELVIO DO NASCIMENTO VEIRA JÚNIOR - 01439580 #
+#         JOÃO VICTOR DE LIMA BOUDOUX - 01418757      #
+# PROFESSOR: ANTENOR                                  #
+#                                                     #
+#                                                     #
+#                                                     #
+#                                                     #
+#                                                     #
+
+
+
+
+
+
+
+
+class AFND:
+    def __init__(self):
+        self.transicoes = {}
+        
+        self.estado_inicial = 'Q1'
+        
+        self.estados_finais = {
+            'Q4', 'Q7'
+            }
+        
+        self.conjunto_estados = {
+            'Q1',
+              'Q2',
+                'Q3',
+                  'Q4',
+                    'Q5',
+                      'Q6',
+                        'Q7'
+            }
+        
+
+        self.transicoes['Q1'] = {
+            '$': {'Q2'}
+            }
+        
+        self.transicoes['Q2'] = {
+            '$': {'Q3', 'Q5'},
+              'a': {'Q2'},
+                'b': {'Q2'}
+            } # { Definindo as transições do autômato }
+        
+        self.transicoes['Q3'] = {
+            'a': {'Q3'},
+              'b': {'Q3'},
+                '$': {'Q4'}
+                }
+        
+        self.transicoes['Q4'] = {
+            'c': {'Q4'}
+            }
+        
+        self.transicoes['Q5'] = {
+            'b': {'Q5'},
+              '$': {'Q6'}
+              }
+        
+        self.transicoes['Q6'] = {
+            'c': {'Q6'},
+              'a': {'Q6'},
+                '$': {'Q7'}
+                }
+        
+        self.transicoes['Q7'] = {}
+
+    def reconhecer(self, entrada):
+        estados_atuais = {'Q1'}
+        
+        # Função para obter os estados alcançáveis
+        def obter_proximos_estados(estados):
+            proximos_estados = set(estados)  # Cria uma cópia dos estados atuais
+            for estado in estados:
+                if '$' in self.transicoes[estado]:  # Verifica se há transição epsilon ($)
+                    proximos_estados.update(self.transicoes[estado]['$'])  # Adiciona estados alcançáveis por epsilon
+            return proximos_estados
+
+        estados_atuais = obter_proximos_estados(estados_atuais)
+        
+        # Itera sobre cada símbolo na entrada
+        for simbolo in entrada:
+            proximos_estados = set()
+            for estado in estados_atuais:
+                if simbolo in self.transicoes[estado]:  # Verifica se há transição para o símbolo atual
+                    proximos_estados.update(self.transicoes[estado][simbolo])  # Adiciona estados alcançáveis pelo símbolo
+            estados_atuais = obter_proximos_estados(proximos_estados)  # Atualiza estados atuais
+        
+        # Verifica se algum dos estados atuais é final
+        for estado in estados_atuais:
+            if estado in self.estados_finais:
+                return True  # Se encontrar estado final, retorna True
+        
+        return False  # Se não encontrar estado final, retorna False
+
+
+# Função principal para interação com o usuário
+def main():
+    automato = AFND()
+    
+    while True:
+        # Leitura da linguagem a ser testada
+        linguagem = input("Digite a palavra que quer validar: ")
+        
+        if linguagem.lower() == 'sair':
+            print("Encerrando o programa...")
+            break
+        
+        if automato.reconhecer(linguagem):
+            print("Reconheceu")
+        else:
+            print("Não reconheceu")
+
+
+if __name__ == "__main__":
+    main()
